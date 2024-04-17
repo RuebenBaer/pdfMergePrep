@@ -11,6 +11,7 @@
 namespace fs = boost::filesystem;
 
 void DateiVerarbeiten(fs::path pfad, std::ofstream& os);
+void VerzeichnisVerarbeiten(fs::path pfad, std::ofstream& os);
 void printLicense(void);
 
 int main(int argc, char** argv)
@@ -35,19 +36,44 @@ int main(int argc, char** argv)
 	if(!os.good())return 1;
 	for(int datNr = 1; datNr < argc; datNr++)
 	{
+		std::cout<<"Argument "<<datNr<<": "<<argv[datNr]<<"\n";
 		fs::path pfad(argv[datNr]);
 		if(!fs::exists(pfad))continue;
-		if(!fs::is_regular_file(pfad))continue;
 
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
 		{
 			DateiVerarbeiten(pfad, os);
 		}
+		if(fs::is_directory(pfad))
+      	{
+			VerzeichnisVerarbeiten(pfad, os);
+		}
 	}
 	os.close();
 	system("PAUSE");
 	return 0;
+}
+
+void VerzeichnisVerarbeiten(fs::path pfad, std::ofstream& os)
+{
+	std::cout<<pfad.filename().generic_string()<<" gefunden\n";
+	fs::directory_iterator it(pfad);
+	while(it != fs::directory_iterator())
+	{
+		fs::path subPfad = it->path();
+		std::cout<<subPfad.filename().generic_string()<<"\n";
+		if(fs::is_regular_file(subPfad))
+		{
+			DateiVerarbeiten(subPfad, os);
+		}
+		if(fs::is_directory(subPfad))
+		{
+			VerzeichnisVerarbeiten(subPfad, os);
+		}
+		it++;
+	}
+	return;
 }
 
 void DateiVerarbeiten(fs::path pfad, std::ofstream& os)
