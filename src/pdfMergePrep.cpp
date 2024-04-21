@@ -10,8 +10,9 @@
 
 namespace fs = boost::filesystem;
 
-void DateiVerarbeiten(fs::path pfad, std::ofstream& os);
-void VerzeichnisVerarbeiten(fs::path pfad, std::ofstream& os);
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
+void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
+void TexKopfSchreiben(std::ofstream& os);
 void printLicense(void);
 
 int main(int argc, char** argv)
@@ -40,14 +41,15 @@ int main(int argc, char** argv)
 		fs::path pfad(argv[datNr]);
 		if(!fs::exists(pfad))continue;
 
+		std::string dirRoot = "";
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
 		{
-			DateiVerarbeiten(pfad, os);
+			DateiVerarbeiten(pfad, dirRoot, os);
 		}
 		if(fs::is_directory(pfad))
       	{
-			VerzeichnisVerarbeiten(pfad, os);
+			VerzeichnisVerarbeiten(pfad, dirRoot, os);
 		}
 	}
 	os.close();
@@ -55,9 +57,10 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void VerzeichnisVerarbeiten(fs::path pfad, std::ofstream& os)
+void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 {
-	std::cout<<pfad.filename().generic_string()<<" gefunden\n";
+	dirRoot += pfad.filename().generic_string() + '/';
+	std::cout<<dirRoot<<" gefunden\n";
 	fs::directory_iterator it(pfad);
 	while(it != fs::directory_iterator())
 	{
@@ -65,20 +68,21 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::ofstream& os)
 		std::cout<<subPfad.filename().generic_string()<<"\n";
 		if(fs::is_regular_file(subPfad))
 		{
-			DateiVerarbeiten(subPfad, os);
+			DateiVerarbeiten(subPfad, dirRoot, os);
 		}
 		if(fs::is_directory(subPfad))
 		{
-			VerzeichnisVerarbeiten(subPfad, os);
+			VerzeichnisVerarbeiten(subPfad, dirRoot, os);
 		}
 		it++;
 	}
 	return;
 }
 
-void DateiVerarbeiten(fs::path pfad, std::ofstream& os)
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 {
 	std::string strPfad = pfad.filename().generic_string();
+	std::string strDir = pfad.parent_path().generic_string();
 	std::cout<<"Suche in: "<<strPfad<<"\n";
 	size_t letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
 	if(letzteFundStelle == std::string::npos)return;
@@ -95,11 +99,19 @@ void DateiVerarbeiten(fs::path pfad, std::ofstream& os)
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
-	std::cout<<gefunden<<" Punkte gefunden\n\n";
+	std::cout<<gefunden<<" Punkte gefunden; neuer Name "<<strPfad<<"\n\n";
+	
+	
+	fs::rename(pfad, strDir+"/"+strPfad);
 	
 	os<<"\\includepdf[\n";
-	os<<"\tpages=-\n\taddtotoc={\t\n\t}\n]{"<<strPfad<<"}\n\n";
+	os<<"\tpages=-\n\taddtotoc={\t\n\t}\n]{"<<dirRoot<<strPfad<<"}\n\n";
 	
+	return;
+}
+
+void TexKopfSchreiben(std::ofstream& os)
+{
 	return;
 }
 
