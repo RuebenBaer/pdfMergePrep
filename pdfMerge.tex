@@ -1,37 +1,47 @@
-\documentclass[ngerman]{report}
-\usepackage[T1]{fontenc}
-\usepackage[ngerman]{babel}
-\usepackage{parskip} %Einrückung neuer Paragraphen verhindern
-\usepackage{booktabs}%Tabellenlinien etc.
+Das ist noch ein leerer Kopf
 
-\usepackage{amssymb, amsmath}
-\newcommand{\myvec}[1]{\ensuremath{\begin{pmatrix}#1\end{pmatrix}}}
-\usepackage{bm}
+ein paar leere Zeilen
 
-\usepackage{tikz}
-\usetikzlibrary {arrows.meta, calc}
-\usepackage{pdfpages}
-
-\usepackage{hyperref}
-\usepackage{cleveref}
-\hypersetup{hidelinks}
-
-\title{\textbf{R}echner\textbf{U}nterstütztes\textbf{Z}eichnen RUZ\\Technische Spezifikationen}
-\author{Ansgar Rütten}
-\date{09. März 2024\\Stand:\today}
+und das Ende
 
 
-\begin{document}
-\maketitle
-\newpage
-\tableofcontents
-\newpage
-\chapter{Elemente der Zeichnung}
+Noch ein paar Ergänzungen
+
+
+-
+\includepdf[
+	pages=-
+	addtotoc={	
+	}
+]{Latex/fl�che.tex}
 
 \includepdf[
 	pages=-
 	addtotoc={	
 	}
-]{Test/Untertest/Neues_Text_d_ok_ument.pdf}
+]{Latex/Grundgleichungen.tex}
 
-\end{document}
+\includepdf[
+	pages=-
+	addtotoc={	
+	}
+]{Latex/punkt.tex}
+
+\includepdf[
+	pages=-
+	addtotoc={	
+	}
+]{Latex/RUZ.pdf}
+
+\includepdf[
+	pages=-
+	addtotoc={	
+	}
+]{Latex/RUZ.tex}
+
+\includepdf[
+	pages=-
+	addtotoc={	
+	}
+]{Latex/ruz_objekt.tex}
+

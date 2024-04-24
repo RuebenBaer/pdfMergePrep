@@ -12,7 +12,6 @@ namespace fs = boost::filesystem;
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
-void TexKopfSchreiben(std::ofstream& os);
 void printLicense(void);
 
 int main(int argc, char** argv)
@@ -34,7 +33,20 @@ int main(int argc, char** argv)
 	}
 
 	std::ofstream os("pdfMerge.tex", std::ios::out);
-	if(!os.good())return 1;
+	std::ifstream is("TexKopf.tex", std::ios::in);
+	if(!os.good())
+	{
+		std::cout<<"Ausgabedatei 'pdfMerge.tex' konnte nicht geo:ffnet werden\n";
+		system("PAUSE");
+		return 1;
+	}
+	if(!is.good())
+	{
+	std::cout<<"'TexKopf.tex' konnte nicht geo:ffnet werden\nTex-Kopf muss manuelL eingefu:gt werden\n\n";
+	}else{
+		os<<is.rdbuf();
+	}
+	
 	for(int datNr = 1; datNr < argc; datNr++)
 	{
 		std::cout<<"Argument "<<datNr<<": "<<argv[datNr]<<"\n";
@@ -52,6 +64,9 @@ int main(int argc, char** argv)
 			VerzeichnisVerarbeiten(pfad, dirRoot, os);
 		}
 	}
+	
+	os<<"\n\\end{document}\n";
+	
 	os.close();
 	system("PAUSE");
 	return 0;
@@ -99,19 +114,17 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
-	std::cout<<gefunden<<" Punkte gefunden; neuer Name "<<strPfad<<"\n\n";
 	
-	
-	fs::rename(pfad, strDir+"/"+strPfad);
+	std::cout<<gefunden<<" Punkte gefunden\n";
+	if(gefunden)
+	{
+		std::cout<<"Neuer Name: "<<strPfad<<"\n\n";
+		fs::rename(pfad, strDir+"/"+strPfad);
+	}
 	
 	os<<"\\includepdf[\n";
 	os<<"\tpages=-\n\taddtotoc={\t\n\t}\n]{"<<dirRoot<<strPfad<<"}\n\n";
 	
-	return;
-}
-
-void TexKopfSchreiben(std::ofstream& os)
-{
 	return;
 }
 
