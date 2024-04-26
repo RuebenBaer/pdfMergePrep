@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	{
 		std::cout<<"\nVerwendung: pdfMergePrep.exe Datei_1 Datei_2 ...\n\n";
 		std::cout<<"Entfernt Punkte aus dem Dateinamen (Datei_1 Datei_2 ...)\n";
-		std::cout<<"und schreibt den '\\includepdf'-Block (LaTeX) fU:r jede Datei.\n\n";
+		std::cout<<"und schreibt den '\\includepdf'-Block (LaTeX) fu:r jede Datei.\n\n";
 		system("PAUSE");
 		printLicense();
 		system("PAUSE");
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
 	}
 	if(!is.good())
 	{
-	std::cout<<"'TexKopf.tex' konnte nicht geo:ffnet werden\nTex-Kopf muss manuelL eingefu:gt werden\n\n";
+	std::cout<<"'TexKopf.tex' konnte nicht geo:ffnet werden\nTex-Kopf muss manuell eingefu:gt werden\n\n";
 	}else{
 		os<<is.rdbuf();
 	}
@@ -109,21 +109,35 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fundStelle = strPfad.find('.', fundStelle+1);
 		if(fundStelle != letzteFundStelle)
 		{
-			std::cout<<fundStelle<<" ";
 			strPfad[fundStelle] = '_';
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
-	
-	std::cout<<gefunden<<" Punkte gefunden\n";
+
+	fundStelle = 0;
+	do
+	{
+		fundStelle = strPfad.find(',', fundStelle+1);
+		if(fundStelle == std::string::npos) break;
+		strPfad[fundStelle] = '_';
+		gefunden++;
+	}while(1);
+
 	if(gefunden)
 	{
 		std::cout<<"Neuer Name: "<<strPfad<<"\n\n";
 		fs::rename(pfad, strDir+"/"+strPfad);
 	}
-	
+
+	fundStelle = strPfad.find('.', 0);
+	std::string dateiName = strPfad;
+	dateiName.erase(fundStelle, std::string::npos);
 	os<<"\\includepdf[\n";
-	os<<"\tpages=-\n\taddtotoc={\t\n\t}\n]{"<<dirRoot<<strPfad<<"}\n\n";
+		os<<"\tpages=-,\n";
+		os<<"\trotateoversize,\n";
+		os<<"\tfitpaper,\n";
+		os<<"\taddtotoc={1, chapter, 0, "<<dateiName<<",\n\t}\n";
+	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
 	
 	return;
 }

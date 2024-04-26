@@ -1,11 +1,19 @@
-Das ist noch ein leerer Kopf
+\documentclass[a4paper]{report}
+\usepackage[T1]{fontenc}
+%\usepackage{fontspec}
+\usepackage[ngerman]{babel}
+\usepackage{geometry}
+\usepackage{pdfpages}
+\usepackage{bookmark}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
 
-ein paar leere Zeilen
+%\setsansfont{Arial}
 
-und das Ende
+\begin{document}
+\renewcommand{\familydefault}{\sfdefault}
+\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
 
+\tableofcontents
+\newgeometry{left=-20mm, top=-10mm}
 
-Noch ein paar Ergänzungen
-
-
--
