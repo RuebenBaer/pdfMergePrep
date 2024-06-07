@@ -19,7 +19,17 @@ int main(int argc, char** argv)
 	system("chcp 1252");
 	system("cls");
 	
-	std::printf("\n.: (c)Ru:bensoft 2024 - pdfMergePrep :.\n\n");
+	std::cout<<"\n.: (c)R"<<(char)0xf5<<"bensoft 2024 - pdfMergePrep :.\n\n";
+
+	std::string kopfPfad = "";
+	fs::path exePfad(argv[0]);
+	if(fs::exists(exePfad))
+	{
+		kopfPfad = exePfad.parent_path().generic_string();
+		kopfPfad += "/";
+	}
+	kopfPfad += "TexKopf.tex";
+	std::cout<<"Kopf: "<<kopfPfad<<"\n";
 
 	if(argc <2)
 	{
@@ -33,7 +43,7 @@ int main(int argc, char** argv)
 	}
 
 	std::ofstream os("pdfMerge.tex", std::ios::out);
-	std::ifstream is("TexKopf.tex", std::ios::in);
+	std::ifstream is(kopfPfad, std::ios::in);
 	if(!os.good())
 	{
 		std::cout<<"Ausgabedatei 'pdfMerge.tex' konnte nicht geo:ffnet werden\n";
@@ -68,6 +78,9 @@ int main(int argc, char** argv)
 	os<<"\n\\end{document}\n";
 	
 	os.close();
+	std::cout<<"\n\n******************ACHTUNG!******************\n\n";
+	std::cout<<"pdfMerge.tex zuerst in einem Texteditor öffnen und im 'UTF-8'-Format speichern.\n";
+	std::cout<<"LatexEditor in 'UTF-8'-Modus starten!\n\n";
 	system("PAUSE");
 	return 0;
 }
@@ -109,7 +122,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fundStelle = strPfad.find('.', fundStelle+1);
 		if(fundStelle != letzteFundStelle)
 		{
-			strPfad[fundStelle] = '_';
+			strPfad[fundStelle] = '-';
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
@@ -119,7 +132,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 	{
 		fundStelle = strPfad.find(',', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
-		strPfad[fundStelle] = '_';
+		strPfad[fundStelle] = '-';
 		gefunden++;
 	}while(1);
 
@@ -136,7 +149,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		os<<"\tpages=-,\n";
 		os<<"\trotateoversize,\n";
 		os<<"\tfitpaper,\n";
-		os<<"\taddtotoc={1, chapter, 0, "<<dateiName<<",\n\t}\n";
+		os<<"\taddtotoc={1, chapter, 0, {"<<dateiName<<"},\n\t}\n";
 	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
 	
 	return;
