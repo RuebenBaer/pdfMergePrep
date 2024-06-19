@@ -12,6 +12,7 @@ namespace fs = boost::filesystem;
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
+void GrossBuchstaben(std::string& str);
 void printLicense(void);
 
 int main(int argc, char** argv)
@@ -110,6 +111,15 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 {
 	std::string strPfad = pfad.filename().generic_string();
+	std::string ext = pfad.extension().generic_string();
+	GrossBuchstaben(ext);
+	if(strcmp(ext.c_str(), ".PDF"))
+	{
+		std::cout<<strPfad<<" ist kein pdf ("<<ext<<") ... Datei wird u:bersprungen";
+		return;
+	}
+
+
 	std::string strDir = pfad.parent_path().generic_string();
 	std::cout<<"Suche in: "<<strPfad<<"\n";
 	size_t letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
@@ -142,8 +152,16 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fs::rename(pfad, strDir+"/"+strPfad);
 	}
 
-	fundStelle = strPfad.find('.', 0);
 	std::string dateiName = strPfad;
+	fundStelle = 0;
+	do
+	{
+		fundStelle = dateiName.find('_', fundStelle+1);
+		if(fundStelle == std::string::npos) break;
+		dateiName[fundStelle] = '-';
+	}while(1);
+
+	fundStelle = strPfad.find('.', 0);
 	dateiName.erase(fundStelle, std::string::npos);
 	os<<"\\includepdf[\n";
 		os<<"\tpages=-,\n";
@@ -152,6 +170,16 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		os<<"\taddtotoc={1, chapter, 0, {"<<dateiName<<"},\n\t}\n";
 	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
 	
+	return;
+}
+
+void GrossBuchstaben(std::string& str)
+{
+	for(size_t i = 0; i < str.length(); i++)
+	{
+		if((str[i] >= 'a') && (str[i] <= 'z'))
+			str[i] = str[i] + ('A' - 'a');
+	}
 	return;
 }
 

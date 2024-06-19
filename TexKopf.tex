@@ -9,11 +9,14 @@
 \hypersetup{hidelinks}
 
 %\setsansfont{Arial}
+\setlocalecaption{ngerman}{contents}{Verzeichnis der Anlagen}%Ändert den Namen des Inhaltsverzeichnisses
 
 \begin{document}
 \renewcommand{\familydefault}{\sfdefault}
-\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
 
+%\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
+
+\setcounter{page}{9}%Startseite dieses PDF => Anzahl der Seiten des Hauptdokumtes +1
 \tableofcontents
 \newgeometry{left=-20mm, top=-10mm}
 
