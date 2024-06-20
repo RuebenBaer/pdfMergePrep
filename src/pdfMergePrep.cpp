@@ -132,7 +132,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fundStelle = strPfad.find('.', fundStelle+1);
 		if(fundStelle != letzteFundStelle)
 		{
-			strPfad[fundStelle] = '-';
+			strPfad[fundStelle] = '+';
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
@@ -142,7 +142,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 	{
 		fundStelle = strPfad.find(',', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
-		strPfad[fundStelle] = '-';
+		strPfad[fundStelle] = ' ';
 		gefunden++;
 	}while(1);
 
@@ -152,13 +152,19 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fs::rename(pfad, strDir+"/"+strPfad);
 	}
 
-	std::string dateiName = strPfad;
+	std::string dateiName = strPfad;//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
 	fundStelle = 0;
 	do
 	{
 		fundStelle = dateiName.find('_', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
-		dateiName[fundStelle] = '-';
+		dateiName[fundStelle] = ' ';
+	}while(1);fundStelle = 0;
+	do
+	{
+		fundStelle = dateiName.find('+', fundStelle+1);
+		if(fundStelle == std::string::npos) break;
+		dateiName[fundStelle] = '.';
 	}while(1);
 
 	fundStelle = strPfad.find('.', 0);
