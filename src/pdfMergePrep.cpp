@@ -6,13 +6,18 @@
 #include <boost/filesystem.hpp>
 #include <vector>
 #include <ctime>
-#include <new> 
+#include <new>
+
+#define ae (char)0xE4
+#define oe (char)0xf6
+#define ue (char)0xfc
 
 namespace fs = boost::filesystem;
 
-void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
-void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os);
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
+void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
 void GrossBuchstaben(std::string& str);
+std::string EbenenName(int ebene);
 void printLicense(void);
 
 int main(int argc, char** argv)
@@ -20,7 +25,7 @@ int main(int argc, char** argv)
 	system("chcp 1252");
 	system("cls");
 	
-	std::cout<<"\n.: (c)R"<<(char)0xf5<<"bensoft 2024 - pdfMergePrep :.\n\n";
+	std::cout<<"\n.: (c)R"<<ue<<"bensoft 2024 - pdfMergePrep :.\n\n";
 
 	std::string kopfPfad = "";
 	fs::path exePfad(argv[0]);
@@ -36,7 +41,7 @@ int main(int argc, char** argv)
 	{
 		std::cout<<"\nVerwendung: pdfMergePrep.exe Datei_1 Datei_2 ...\n\n";
 		std::cout<<"Entfernt Punkte aus dem Dateinamen (Datei_1 Datei_2 ...)\n";
-		std::cout<<"und schreibt den '\\includepdf'-Block (LaTeX) fu:r jede Datei.\n\n";
+		std::cout<<"und schreibt den '\\includepdf'-Block (LaTeX) f"<<ue<<"r jede Datei.\n\n";
 		system("PAUSE");
 		printLicense();
 		system("PAUSE");
@@ -47,13 +52,13 @@ int main(int argc, char** argv)
 	std::ifstream is(kopfPfad, std::ios::in);
 	if(!os.good())
 	{
-		std::cout<<"Ausgabedatei 'pdfMerge.tex' konnte nicht geo:ffnet werden\n";
+		std::cout<<"Ausgabedatei 'pdfMerge.tex' konnte nicht ge"<<oe<<"ffnet werden\n";
 		system("PAUSE");
 		return 1;
 	}
 	if(!is.good())
 	{
-	std::cout<<"'TexKopf.tex' konnte nicht geo:ffnet werden\nTex-Kopf muss manuell eingefu:gt werden\n\n";
+	std::cout<<"'TexKopf.tex' konnte nicht ge"<<oe<<"ffnet werden\nTex-Kopf muss manuell eingef"<<ue<<"gt werden\n\n";
 	}else{
 		os<<is.rdbuf();
 	}
@@ -64,15 +69,16 @@ int main(int argc, char** argv)
 		fs::path pfad(argv[datNr]);
 		if(!fs::exists(pfad))continue;
 
+		std::string ordnerUeberschrift("");
 		std::string dirRoot = "";
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
 		{
-			DateiVerarbeiten(pfad, dirRoot, os);
+			DateiVerarbeiten(pfad, dirRoot, os, 0, ordnerUeberschrift);
 		}
 		if(fs::is_directory(pfad))
       	{
-			VerzeichnisVerarbeiten(pfad, dirRoot, os);
+			VerzeichnisVerarbeiten(pfad, dirRoot, os, 0, ordnerUeberschrift);
 		}
 	}
 	
@@ -86,36 +92,39 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
+void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift)
 {
 	dirRoot += pfad.filename().generic_string() + '/';
 	std::cout<<dirRoot<<" gefunden\n";
 	fs::directory_iterator it(pfad);
+	
+	ordnerUeberschrift += "1, " + EbenenName(ebene) + ", " + (char)(ebene + '0') + ", {" + pfad.filename().generic_string() + "},,\n";
 	while(it != fs::directory_iterator())
 	{
 		fs::path subPfad = it->path();
 		std::cout<<subPfad.filename().generic_string()<<"\n";
 		if(fs::is_regular_file(subPfad))
 		{
-			DateiVerarbeiten(subPfad, dirRoot, os);
+			DateiVerarbeiten(subPfad, dirRoot, os, ebene + 1, ordnerUeberschrift);
+			ordnerUeberschrift = "";
 		}
 		if(fs::is_directory(subPfad))
 		{
-			VerzeichnisVerarbeiten(subPfad, dirRoot, os);
+			VerzeichnisVerarbeiten(subPfad, dirRoot, os, ebene + 1, ordnerUeberschrift);
 		}
 		it++;
 	}
 	return;
 }
 
-void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift)
 {
 	std::string strPfad = pfad.filename().generic_string();
 	std::string ext = pfad.extension().generic_string();
 	GrossBuchstaben(ext);
 	if(strcmp(ext.c_str(), ".PDF"))
 	{
-		std::cout<<strPfad<<" ist kein pdf ("<<ext<<") ... Datei wird u:bersprungen";
+		std::cout<<strPfad<<" ist kein pdf ("<<ext<<") ... Datei wird "<<ue<<"bersprungen";
 		return;
 	}
 
@@ -125,6 +134,10 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 	size_t letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
 	if(letzteFundStelle == std::string::npos)return;
 	
+	std::string tocPfad = strPfad.substr(0, letzteFundStelle);
+	tocPfad.append(".toc");
+	std::cout<<"TOC-Datei w"<<ae<<"re: "<<tocPfad<<"\n";
+	
 	size_t fundStelle = 0;
 	int gefunden = 0;
 	do
@@ -133,6 +146,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		if(fundStelle != letzteFundStelle)
 		{
 			strPfad[fundStelle] = '+';
+			tocPfad[fundStelle] = '+';
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
@@ -143,13 +157,19 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		fundStelle = strPfad.find(',', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
 		strPfad[fundStelle] = ' ';
+		tocPfad[fundStelle] = ' ';
 		gefunden++;
 	}while(1);
 
 	if(gefunden)
 	{
-		std::cout<<"Neuer Name: "<<strPfad<<"\n\n";
+		std::cout<<"Neuer Name: "<<strPfad<<" ("<<tocPfad<<")\n\n";
 		fs::rename(pfad, strDir+"/"+strPfad);
+		fs::path toc(strDir + "/" + tocPfad);
+		if(fs::exists(toc))
+		{
+			std::cout<<"TOC existiert\n";
+		}
 	}
 
 	std::string dateiName = strPfad;//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
@@ -173,7 +193,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os)
 		os<<"\tpages=-,\n";
 		os<<"\trotateoversize,\n";
 		os<<"\tfitpaper,\n";
-		os<<"\taddtotoc={1, chapter, 0, {"<<dateiName<<"},\n\t}\n";
+		os<<"\taddtotoc={"<<ordnerUeberschrift<<"1, "<<EbenenName(ebene)<<", "<<ebene<<", {"<<dateiName<<"},\n\t}\n";
 	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
 	
 	return;
@@ -187,6 +207,28 @@ void GrossBuchstaben(std::string& str)
 			str[i] = str[i] + ('A' - 'a');
 	}
 	return;
+}
+
+std::string EbenenName(int ebene)
+{
+	switch(ebene)
+	{
+		case 0:
+			return std::string("chapter");
+		case 1:
+			return std::string("section");
+		case 2:
+			return std::string("subsection");
+		case 3:
+			return std::string("subsubsection");
+		case 4:
+			return std::string("paragraph");
+		case 5:
+			return std::string("subparagraph");
+		default:
+			return std::string("part");
+	}
+	return std::string("");
 }
 
 void printLicense(void)
