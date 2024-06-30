@@ -16,6 +16,7 @@ namespace fs = boost::filesystem;
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
+void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os);
 void GrossBuchstaben(std::string& str);
 std::string EbenenName(int ebene);
 void printLicense(void);
@@ -137,6 +138,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	std::string tocPfad = strPfad.substr(0, letzteFundStelle);
 	tocPfad.append(".toc");
 	std::cout<<"TOC-Datei w"<<ae<<"re: "<<tocPfad<<"\n";
+	fs::path toc(strDir + "/" + tocPfad);
 	
 	size_t fundStelle = 0;
 	int gefunden = 0;
@@ -146,7 +148,6 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		if(fundStelle != letzteFundStelle)
 		{
 			strPfad[fundStelle] = '+';
-			tocPfad[fundStelle] = '+';
 			gefunden++;
 		}
 	}while(fundStelle != letzteFundStelle);
@@ -157,18 +158,24 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		fundStelle = strPfad.find(',', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
 		strPfad[fundStelle] = ' ';
-		tocPfad[fundStelle] = ' ';
 		gefunden++;
 	}while(1);
 
 	if(gefunden)
 	{
 		std::cout<<"Neuer Name: "<<strPfad<<" ("<<tocPfad<<")\n\n";
-		fs::rename(pfad, strDir+"/"+strPfad);
-		fs::path toc(strDir + "/" + tocPfad);
+		fs::rename(pfad, strDir + "/" + strPfad);
 		if(fs::exists(toc))
 		{
-			std::cout<<"TOC existiert\n";
+			letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
+			if(!(letzteFundStelle == std::string::npos))
+			{
+				std::cout<<tocPfad<<" existiert und heisst jetzt ";
+				tocPfad = strPfad.substr(0, letzteFundStelle);
+				tocPfad.append(".toc");
+				fs::rename(toc, strDir + "/" + tocPfad);
+				std::cout<<tocPfad<<"\n";
+			}
 		}
 	}
 
@@ -194,8 +201,31 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		os<<"\trotateoversize,\n";
 		os<<"\tfitpaper,\n";
 		os<<"\taddtotoc={"<<ordnerUeberschrift<<"1, "<<EbenenName(ebene)<<", "<<ebene<<", {"<<dateiName<<"},\n\t}\n";
+
+	TocEinfuegen(toc.generic_string().c_str(), ebene, os);
+
 	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
 	
+	return;
+}
+
+void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os)
+{
+	std::ifstream eingabe(tocPfad, std::ios::in);
+	std::string buffer;
+	
+	if(eingabe.good())
+	{
+		while(!eingabe.eof())
+		{
+			std::getline(eingabe, buffer);
+			std::cout<<buffer<<"\n";
+		}
+	}else
+	{
+		std::cout<<tocPfad<<" nicht offen\n\n";
+	}
+	eingabe.close();
 	return;
 }
 
