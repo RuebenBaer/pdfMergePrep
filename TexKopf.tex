@@ -6,7 +6,7 @@
 \usepackage{pdfpages}
 \usepackage{bookmark}
 \usepackage{hyperref}
-\hypersetup{hidelinks}
+\hypersetup{hidelinks, bookmarksdepth=5}
 
 %\setsansfont{Arial}
 \setlocalecaption{ngerman}{contents}{Verzeichnis der Anlagen}%Ändert den Namen des Inhaltsverzeichnisses
@@ -17,6 +17,7 @@
 %\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
 
 \setcounter{page}{9}%Startseite dieses PDF => Anzahl der Seiten des Hauptdokumtes +1
+%\setcounter{tocdepth}{4}%Tiefe des Anlagenverzeichnisses setzen
 \tableofcontents
 \newgeometry{left=-20mm, top=-10mm}
 

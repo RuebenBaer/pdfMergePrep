@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 	
 	os.close();
 	std::cout<<"\n\n******************ACHTUNG!******************\n\n";
-	std::cout<<"pdfMerge.tex zuerst in einem Texteditor öffnen und im 'UTF-8'-Format speichern.\n";
+	std::cout<<"pdfMerge.tex zuerst in einem Texteditor "<<oe<<"ffnen und im 'UTF-8'-Format speichern.\n";
 	std::cout<<"LatexEditor in 'UTF-8'-Modus starten!\n\n";
 	system("PAUSE");
 	return 0;
@@ -96,14 +96,13 @@ int main(int argc, char** argv)
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift)
 {
 	dirRoot += pfad.filename().generic_string() + '/';
-	std::cout<<dirRoot<<" gefunden\n";
+	std::cout<<"Verzeichnis "<<dirRoot<<" gefunden\n";
 	fs::directory_iterator it(pfad);
 	
-	ordnerUeberschrift += "1, " + EbenenName(ebene) + ", " + (char)(ebene + '0') + ", {" + pfad.filename().generic_string() + "},,\n";
+	ordnerUeberschrift += "\t\t\t1, " + EbenenName(ebene) + ", " + (char)(ebene + '0') + ", {" + pfad.filename().generic_string() + "},,\n";
 	while(it != fs::directory_iterator())
 	{
 		fs::path subPfad = it->path();
-		std::cout<<subPfad.filename().generic_string()<<"\n";
 		if(fs::is_regular_file(subPfad))
 		{
 			DateiVerarbeiten(subPfad, dirRoot, os, ebene + 1, ordnerUeberschrift);
@@ -125,19 +124,17 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	GrossBuchstaben(ext);
 	if(strcmp(ext.c_str(), ".PDF"))
 	{
-		std::cout<<strPfad<<" ist kein pdf ("<<ext<<") ... Datei wird "<<ue<<"bersprungen";
+		std::cout<<"\t"<<strPfad<<" ist kein pdf ("<<ext<<") ... Datei wird "<<ue<<"bersprungen\n";
 		return;
 	}
 
-
 	std::string strDir = pfad.parent_path().generic_string();
-	std::cout<<"Suche in: "<<strPfad<<"\n";
+	std::cout<<"\tVerarbeite "<<strPfad<<"\n";
 	size_t letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
 	if(letzteFundStelle == std::string::npos)return;
 	
 	std::string tocPfad = strPfad.substr(0, letzteFundStelle);
 	tocPfad.append(".toc");
-	std::cout<<"TOC-Datei w"<<ae<<"re: "<<tocPfad<<"\n";
 	fs::path toc(strDir + "/" + tocPfad);
 	
 	size_t fundStelle = 0;
@@ -163,18 +160,15 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 
 	if(gefunden)
 	{
-		std::cout<<"Neuer Name: "<<strPfad<<" ("<<tocPfad<<")\n\n";
 		fs::rename(pfad, strDir + "/" + strPfad);
 		if(fs::exists(toc))
 		{
 			letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
 			if(!(letzteFundStelle == std::string::npos))
 			{
-				std::cout<<tocPfad<<" existiert und heisst jetzt ";
 				tocPfad = strPfad.substr(0, letzteFundStelle);
 				tocPfad.append(".toc");
 				fs::rename(toc, strDir + "/" + tocPfad);
-				std::cout<<tocPfad<<"\n";
 			}
 		}
 	}
@@ -200,26 +194,42 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		os<<"\tpages=-,\n";
 		os<<"\trotateoversize,\n";
 		os<<"\tfitpaper,\n";
-		os<<"\taddtotoc={"<<ordnerUeberschrift<<"1, "<<EbenenName(ebene)<<", "<<ebene<<", {"<<dateiName<<"},\n\t}\n";
+		//Ordnerüberschrift enthält TOC-eintrag für erste Datei im Ordner, danach wird Ordnerüberschrift zu "" gesetzt! (siehe 'VerzeichnisVerarbeiten')
+		os<<"\taddtotoc={\n"<<ordnerUeberschrift<<"\t\t\t1, "<<EbenenName(ebene)<<", "<<ebene<<", {"<<dateiName<<"},";
 
-	TocEinfuegen(toc.generic_string().c_str(), ebene, os);
+	if(fs::exists(toc))TocEinfuegen(toc.generic_string().c_str(), ebene, os);
 
-	os<<"]{"<<dirRoot<<strPfad<<"}\n\n";
+	os<<"\n\t}\n]{"<<dirRoot<<strPfad<<"}\n\n";
 	
 	return;
 }
 
 void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os)
 {
+	std::cout<<"\t\tF"<<ue<<"ge TOC ein ("<<tocPfad<<")\n";
 	std::ifstream eingabe(tocPfad, std::ios::in);
-	std::string buffer;
+	std::string buffer, tocEintrag;
 	
 	if(eingabe.good())
 	{
 		while(!eingabe.eof())
 		{
 			std::getline(eingabe, buffer);
-			std::cout<<buffer<<"\n";
+			int seite = atoi(buffer.c_str());
+			
+			size_t currPos = 0;
+			size_t tempPos;
+			int offsetEbene = 0;
+
+			while(1)
+			{
+				tempPos = buffer.find('\t', currPos);
+				if(tempPos == std::string::npos)break;
+				currPos = tempPos + 1;
+				offsetEbene++;	
+			}
+			tocEintrag = buffer.substr(currPos);
+			os<<",\n\t\t\t"<<seite<<", "<<EbenenName(ebene+offsetEbene)<<", "<<ebene+offsetEbene<<", {"<<tocEintrag<<"},";
 		}
 	}else
 	{

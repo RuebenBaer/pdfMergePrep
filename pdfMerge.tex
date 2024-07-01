@@ -6,7 +6,7 @@
 \usepackage{pdfpages}
 \usepackage{bookmark}
 \usepackage{hyperref}
-\hypersetup{hidelinks}
+\hypersetup{hidelinks, bookmarksdepth=5}
 
 %\setsansfont{Arial}
 \setlocalecaption{ngerman}{contents}{Verzeichnis der Anlagen}%Ändert den Namen des Inhaltsverzeichnisses
@@ -17,6 +17,7 @@
 %\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
 
 \setcounter{page}{9}%Startseite dieses PDF => Anzahl der Seiten des Hauptdokumtes +1
+%\setcounter{tocdepth}{4}%Tiefe des Anlagenverzeichnisses setzen
 \tableofcontents
 \newgeometry{left=-20mm, top=-10mm}
 
@@ -24,10 +25,17 @@
 	pages=-,
 	rotateoversize,
 	fitpaper,
-	addtotoc={1, chapter, 0, {Test},,
-1, section, 1, {Neues Textd.ok.ument},
+	addtotoc={
+			1, chapter, 0, {Test},,
+			1, section, 1, {Untertest},,
+			1, subsection, 2, {Neues Textd.ok.ument},,
+			1, subsubsection, 3, {Überschrift},,
+			2, paragraph, 4, {Unterüberschrift},,
+			5, paragraph, 4, {Unterüberschirft},,
+			7, subsubsection, 3, {Überschrift},,
+			10, subparagraph, 5, {Unterunterüberschrift},
 	}
-]{Test/Neues_Textd+ok+ument.pdf}
+]{Test/Untertest/Neues_Textd+ok+ument.pdf}
 
 
 \end{document}
