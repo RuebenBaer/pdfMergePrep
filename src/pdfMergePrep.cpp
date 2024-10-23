@@ -210,25 +210,60 @@ void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os)
 	std::ifstream eingabe(tocPfad, std::ios::in);
 	std::string buffer, tocEintrag;
 	
+	long long unsigned int stBuf;
+	bool keineZahl, ignoreWS;
+	int offsetEbene, seite;
+	
 	if(eingabe.good())
 	{
 		while(!eingabe.eof())
 		{
 			std::getline(eingabe, buffer);
-			int seite = atoi(buffer.c_str());
+			keineZahl = false;
+			ignoreWS = false;
+			tocEintrag.clear();
+			offsetEbene = seite = 0;
 			
-			size_t currPos = 0;
-			size_t tempPos;
-			int offsetEbene = 0;
-
-			while(1)
-			{
-				tempPos = buffer.find('\t', currPos);
-				if(tempPos == std::string::npos)break;
-				currPos = tempPos + 1;
-				offsetEbene++;	
+			for (stBuf = 0; stBuf < buffer.length(); stBuf++) {
+				if (buffer[stBuf] == ' ' || buffer[stBuf] == '\t') continue;
+				if (buffer[stBuf] < '0' || buffer[stBuf] > '9') {
+					keineZahl = true;
+					break;
+				}
+				else {
+					seite = buffer[stBuf] - '0';
+					break;
+				}
 			}
-			tocEintrag = buffer.substr(currPos);
+			if (keineZahl) continue;
+			for (stBuf++; stBuf < buffer.length(); stBuf++) {
+				if (!(buffer[stBuf] < '0' || buffer[stBuf] > '9')) {
+					seite *= 10;
+					seite += buffer[stBuf] - '0';
+					continue;
+				}
+				break;
+			}
+			
+			int startPos = stBuf;
+			int endPos = stBuf;
+
+			for (; stBuf < buffer.length(); stBuf++) {
+				if (!(buffer[stBuf] == ' ' || buffer[stBuf] == '\t')) {
+					ignoreWS = true;
+					endPos = stBuf;
+				}
+				else {
+					if (!ignoreWS) {
+						offsetEbene++;
+						startPos = stBuf + 1;
+					}
+				}
+			}
+			if (startPos > endPos) continue;
+			for (int i = startPos; i <= endPos; i++) {
+				tocEintrag += buffer[i];
+			}
 			os<<",\n\t\t\t"<<seite<<", "<<EbenenName(ebene+offsetEbene)<<", "<<ebene+offsetEbene<<", {"<<tocEintrag<<"},";
 		}
 	}else
