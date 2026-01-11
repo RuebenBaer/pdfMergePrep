@@ -180,14 +180,14 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 
 	fundStelle = strPfad.find('.', 0);
 	dateiName.erase(fundStelle, std::string::npos);
-	os << "\\begin{figure}[!ht]\n"
-		/* "\t\\centering\n" */
-		"\t\\includegraphics[width=0.45\\textwidth]{"
+	os << "\\begin{minipage}[c]{0.5\\textwidth}\n"
+		"\t\\includegraphics[width=\\textwidth]{"
 		<< dirRoot << strPfad << "}\n";
 	if (dateiName[0] == '+') {
-		os << "\t\\caption*{" << strPfad.substr(1, strPfad.find_last_of('.') - 1) << "}\n";
+		
+		os << "\t\\\\" << strPfad.substr(1, strPfad.find_last_of('.') - 1) << "\n";
 	}
-	os << "\\end{figure}\n\n";
+	os << "\\end{minipage}\n\n";
 	
 	return;
 }

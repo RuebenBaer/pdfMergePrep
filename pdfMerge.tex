@@ -1,14 +1,10 @@
-\documentclass[a4paper]{scrreport}
+\documentclass[a4paper]{report}
 \usepackage[T1]{fontenc}
 %\usepackage{fontspec}
 \usepackage[ngerman]{babel}
 \usepackage{geometry}
-\usepackage{pdfpages}
-%Für Fotodokumentation
 \usepackage{graphicx}
-\usepackage{caption}
-\usepackage{multicol}
-%ENDE für Fotodokumentation
+\usepackage{pdfpages}
 \usepackage{bookmark}
 \usepackage{hyperref}
 \hypersetup{hidelinks, bookmarksdepth=5}
@@ -19,12 +15,26 @@
 \begin{document}
 \renewcommand{\familydefault}{\sfdefault}
 
-\tableofcontents
-\newgeometry{left=20mm, top=20mm}
+%\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
 
-\input{bildDoku}
+\setcounter{page}{2}%Startseite dieses PDF => Anzahl der Seiten des Hauptdokumtes +1
+%\setcounter{tocdepth}{4}%Tiefe des Anlagenverzeichnisses setzen
+\tableofcontents
+\newgeometry{left=-20mm, top=-10mm}
+
+%zum Einfügen vom Fotodokumentation
+\newgeometry{left=20mm, top=10mm}
+\input{bildDoku} %Pfad zur Fotodokumentation
 
 \newgeometry{left=-20mm, top=-10mm}
+\includepdf[
+	pages=-,
+	rotateoversize,
+	fitpaper,
+	addtotoc={
+			1, chapter, 0, {test},
+	}
+]{test.pdf}
 
 
 \end{document}
