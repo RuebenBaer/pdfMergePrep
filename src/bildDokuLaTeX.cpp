@@ -181,6 +181,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	fundStelle = strPfad.find('.', 0);
 	dateiName.erase(fundStelle, std::string::npos);
 	os << "\\begin{minipage}[c]{0.5\\textwidth}\n"
+		"\t\\centering\n"
 		"\t\\includegraphics[width=\\textwidth]{"
 		<< dirRoot << strPfad << "}\n";
 	if (dateiName[0] == '+') {

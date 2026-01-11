@@ -1,4 +1,4 @@
-\documentclass[a4paper]{report}
+\documentclass[a4paper]{scrreport}
 \usepackage[T1]{fontenc}
 %\usepackage{fontspec}
 \usepackage[ngerman]{babel}
@@ -27,14 +27,5 @@
 \input{bildDoku} %Pfad zur Fotodokumentation
 
 \newgeometry{left=-20mm, top=-10mm}
-\includepdf[
-	pages=-,
-	rotateoversize,
-	fitpaper,
-	addtotoc={
-			1, chapter, 0, {test},
-	}
-]{test.pdf}
-
 
 \end{document}

@@ -15,13 +15,25 @@ BOOSTLIB = \
 
 .PHONEY: all clean
 
-all: obj/pdfMergePrep.o
+all: pdfMergePrep.exe bildDoku.exe
+
+pdfMergePrep.exe: obj/pdfMergePrep.o
 	$(CPP) $(CXXFLAGS) $^ -o pdfMergePrep.exe -s $(LIB) $(BOOSTLIB)
 
-obj/pdfMergePrep.o: src\pdfMergePrep.cpp
+bildDoku.exe: obj/bildDokuLaTeX.o
+	$(CPP) $(CXXFLAGS) $^ -o bildDoku.exe -s $(LIB) $(BOOSTLIB)
+	
+
+obj/pdfMergePrep.o: src/pdfMergePrep.cpp
 	-if not exist obj mkdir obj
 	$(CPP) $(CXXFLAGS) -c $^ -o $@
 
+obj/bildDokuLaTeX.o: src/bildDokuLaTeX.cpp
+	-if not exist obj mkdir obj
+	$(CPP) $(CXXFLAGS) -c $^ -o $@
+
+
 clean:
-	-if exist bin\pdfMergePrep.exe del bin\pdfMergePrep.exe
+	-if exist pdfMergePrep.exe del pdfMergePrep.exe
+	-if exist bildDoku.exe del bildDoku.exe
 	-if exist obj\pdfMergePrep.o del obj\pdfMergePrep.o
