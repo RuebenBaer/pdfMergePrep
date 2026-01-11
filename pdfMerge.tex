@@ -1,9 +1,14 @@
-\documentclass[a4paper]{report}
+\documentclass[a4paper]{scrreport}
 \usepackage[T1]{fontenc}
 %\usepackage{fontspec}
 \usepackage[ngerman]{babel}
 \usepackage{geometry}
 \usepackage{pdfpages}
+%Für Fotodokumentation
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{multicol}
+%ENDE für Fotodokumentation
 \usepackage{bookmark}
 \usepackage{hyperref}
 \hypersetup{hidelinks, bookmarksdepth=5}
@@ -14,41 +19,12 @@
 \begin{document}
 \renewcommand{\familydefault}{\sfdefault}
 
-%\includepdf[pages=1]{                      }%Hier Hauptdokument einfügen
-
-\setcounter{page}{9}%Startseite dieses PDF => Anzahl der Seiten des Hauptdokumtes +1
-%\setcounter{tocdepth}{4}%Tiefe des Anlagenverzeichnisses setzen
 \tableofcontents
+\newgeometry{left=20mm, top=20mm}
+
+\input{bildDoku}
+
 \newgeometry{left=-20mm, top=-10mm}
-
-\includepdf[
-	pages=-,
-	rotateoversize,
-	fitpaper,
-	addtotoc={
-			1, chapter, 0, {Test},,
-			1, section, 1, {altes Textd.ok.ument},,
-			1, subsection, 2, {Hallo},,
-			2, subsubsection, 3, {H a l l o ,   W e l t},,
-			5, subsubsection, 3, {Un	te  rüberschirft},,
-			347, subsection, 2, {Überschrift},,
-			10, paragraph, 4, {Unterunterüberschrift},
-	}
-]{Test/altes_Textd+ok+ument.pdf}
-
-\includepdf[
-	pages=-,
-	rotateoversize,
-	fitpaper,
-	addtotoc={
-			1, section, 1, {Untertest},,
-			1, subsection, 2, {Neues Textd.ok.ument},,
-			1, subsubsection, 3, {Überschrift},,
-			2, paragraph, 4, {Unterüberschrift},,
-			5, paragraph, 4, {Un	te  rüberschirft},,
-			10, subparagraph, 5, {Unterunterüberschrift},
-	}
-]{Test/Untertest/Neues_Textd+ok+ument.pdf}
 
 
 \end{document}

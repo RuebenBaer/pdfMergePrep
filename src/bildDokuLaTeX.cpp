@@ -16,7 +16,6 @@ namespace fs = boost::filesystem;
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
-void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os);
 void GrossBuchstaben(std::string& str);
 std::string EbenenName(int ebene);
 void printLicense(void);
@@ -27,16 +26,6 @@ int main(int argc, char** argv)
 	system("cls");
 	
 	std::cout<<"\n.: (c)R"<<ue<<"bensoft 2026 - bildDokuLaTeX :.\n\n";
-
-	std::string kopfPfad = "";
-	fs::path exePfad(argv[0]);
-	if(fs::exists(exePfad))
-	{
-		kopfPfad = exePfad.parent_path().generic_string();
-		kopfPfad += "/";
-	}
-	kopfPfad += "BildKopf.tex";
-	std::cout<<"Kopf f"<<ue<<"r Fotodokumentation: "<<kopfPfad<<"\n";
 
 	if(argc <2)
 	{
@@ -50,18 +39,11 @@ int main(int argc, char** argv)
 	}
 
 	std::ofstream os("bildDoku.tex", std::ios::out);
-	std::ifstream is(kopfPfad, std::ios::in);
 	if(!os.good())
 	{
 		std::cout<<"Ausgabedatei 'bildDoku.tex' konnte nicht ge"<<oe<<"ffnet werden\n";
 		system("PAUSE");
 		return 1;
-	}
-	if(!is.good())
-	{
-	std::cout<<"'BildKopf.tex' konnte nicht ge"<<oe<<"ffnet werden\nTex-Kopf muss manuell eingef"<<ue<<"gt werden\n\n";
-	}else{
-		os<<is.rdbuf();
 	}
 	
 	// Zuerst die Dateien verarbeiten
@@ -96,8 +78,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	os<<"\n\\end{document}\n";
-	
 	os.close();
 	std::cout<<"\n\n******************ACHTUNG!******************\n\n";
 	std::cout<<"BildDoku.tex zuerst in einem Texteditor "<<oe<<"ffnen und im 'UTF-8'-Format speichern.\n";
@@ -112,9 +92,9 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 	std::cout<<"Verzeichnis "<<dirRoot<<" gefunden\n";
 	fs::directory_iterator it(pfad);
 	
-	fs::directory_iterator itBak = it;
+	std::string ueberschrift = "\\" + EbenenName(ebene) + "{" + pfad.filename().generic_string() + "}\n";
+	os << ueberschrift;
 
-	ordnerUeberschrift += "\t\t\t1, " + EbenenName(ebene) + ", " + (char)(ebene + '0') + ", {" + pfad.filename().generic_string() + "},,\n";
 	while(it != fs::directory_iterator())
 	{
 		fs::path subPfad = it->path();
@@ -126,7 +106,7 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 		it++;
 	}
 
-	if = itBak;
+	it = fs::directory_iterator(pfad);
 	while(it != fs::directory_iterator())
 	{
 		fs::path subPfad = it->path();
@@ -144,7 +124,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	std::string strPfad = pfad.filename().generic_string();
 	std::string ext = pfad.extension().generic_string();
 	GrossBuchstaben(ext);
-	if(strcmp(ext.c_str(), ".PNG") && strcmp(ext.c_str(), ".JPG") && strcmp(ext.c_str(), ".JPEG"));
+	if(strcmp(ext.c_str(), ".PNG") && strcmp(ext.c_str(), ".JPG") && strcmp(ext.c_str(), ".JPEG"))
 	{
 		std::cout<<"\t"<<strPfad<<" ist kein Bild ("<<ext<<") ... Datei wird "<<ue<<"bersprungen\n";
 		return;
@@ -155,10 +135,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	size_t letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
 	if(letzteFundStelle == std::string::npos)return;
 	
-	std::string tocPfad = strPfad.substr(0, letzteFundStelle);
-	tocPfad.append(".toc");
-	fs::path toc(strDir + "/" + tocPfad);
-	
+	// Punkte und Kommas im Dateinamen tauschen, sonst findet LaTeX die Dateien nicht
 	size_t fundStelle = 0;
 	int gefunden = 0;
 	do
@@ -183,16 +160,6 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	if(gefunden)
 	{
 		fs::rename(pfad, strDir + "/" + strPfad);
-		if(fs::exists(toc))
-		{
-			letzteFundStelle = strPfad.find_last_of('.', std::string::npos);
-			if(!(letzteFundStelle == std::string::npos))
-			{
-				tocPfad = strPfad.substr(0, letzteFundStelle);
-				tocPfad.append(".toc");
-				fs::rename(toc, strDir + "/" + tocPfad);
-			}
-		}
 	}
 
 	std::string dateiName = strPfad;//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
@@ -202,7 +169,8 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		fundStelle = dateiName.find('_', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
 		dateiName[fundStelle] = ' ';
-	}while(1);fundStelle = 0;
+	}while(1);
+	fundStelle = 0;
 	do
 	{
 		fundStelle = dateiName.find('+', fundStelle+1);
@@ -212,85 +180,15 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 
 	fundStelle = strPfad.find('.', 0);
 	dateiName.erase(fundStelle, std::string::npos);
-	os<<"\\includepdf[\n";
-		os<<"\tpages=-,\n";
-		os<<"\trotateoversize,\n";
-		os<<"\tfitpaper,\n";
-		//Ordnerüberschrift enthält TOC-eintrag für erste Datei im Ordner, danach wird Ordnerüberschrift zu "" gesetzt! (siehe 'VerzeichnisVerarbeiten')
-		os<<"\taddtotoc={\n"<<ordnerUeberschrift<<"\t\t\t1, "<<EbenenName(ebene)<<", "<<ebene<<", {"<<dateiName<<"},";
-
-	os<<"\n\t}\n]{"<<dirRoot<<strPfad<<"}\n\n";
-	
-	return;
-}
-
-void TocEinfuegen(const char *tocPfad, int ebene, std::ofstream& os)
-{
-	std::cout<<"\t\tF"<<ue<<"ge TOC ein ("<<tocPfad<<")\n";
-	std::ifstream eingabe(tocPfad, std::ios::in);
-	std::string buffer, tocEintrag;
-	
-	long long unsigned int stBuf;
-	bool keineZahl, ignoreWS;
-	int offsetEbene, seite;
-	
-	if(eingabe.good())
-	{
-		while(!eingabe.eof())
-		{
-			std::getline(eingabe, buffer);
-			keineZahl = false;
-			ignoreWS = false;
-			tocEintrag.clear();
-			offsetEbene = seite = 0;
-			
-			for (stBuf = 0; stBuf < buffer.length(); stBuf++) {
-				if (buffer[stBuf] == ' ' || buffer[stBuf] == '\t') continue;
-				if (buffer[stBuf] < '0' || buffer[stBuf] > '9') {
-					keineZahl = true;
-					break;
-				}
-				else {
-					seite = buffer[stBuf] - '0';
-					break;
-				}
-			}
-			if (keineZahl) continue;
-			for (stBuf++; stBuf < buffer.length(); stBuf++) {
-				if (!(buffer[stBuf] < '0' || buffer[stBuf] > '9')) {
-					seite *= 10;
-					seite += buffer[stBuf] - '0';
-					continue;
-				}
-				break;
-			}
-			
-			int startPos = stBuf;
-			int endPos = stBuf;
-
-			for (; stBuf < buffer.length(); stBuf++) {
-				if (!(buffer[stBuf] == ' ' || buffer[stBuf] == '\t')) {
-					ignoreWS = true;
-					endPos = stBuf;
-				}
-				else {
-					if (!ignoreWS) {
-						offsetEbene++;
-						startPos = stBuf + 1;
-					}
-				}
-			}
-			if (startPos > endPos) continue;
-			for (int i = startPos; i <= endPos; i++) {
-				tocEintrag += buffer[i];
-			}
-			os<<",\n\t\t\t"<<seite<<", "<<EbenenName(ebene+offsetEbene)<<", "<<ebene+offsetEbene<<", {"<<tocEintrag<<"},";
-		}
-	}else
-	{
-		std::cout<<tocPfad<<" nicht offen\n\n";
+	os << "\\begin{figure}[!ht]\n"
+		/* "\t\\centering\n" */
+		"\t\\includegraphics[width=0.45\\textwidth]{"
+		<< dirRoot << strPfad << "}\n";
+	if (dateiName[0] == '+') {
+		os << "\t\\caption*{" << strPfad.substr(1, strPfad.find_last_of('.') - 1) << "}\n";
 	}
-	eingabe.close();
+	os << "\\end{figure}\n\n";
+	
 	return;
 }
 
