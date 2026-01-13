@@ -14,7 +14,12 @@
 
 namespace fs = boost::filesystem;
 
-void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
+typedef struct {
+	std::string datei;
+	std::string titel;
+} bild;
+
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::vector<bild>& bildVec);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
 void GrossBuchstaben(std::string& str);
 std::string EbenenName(int ebene);
@@ -58,7 +63,7 @@ int main(int argc, char** argv)
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
 		{
-			DateiVerarbeiten(pfad, dirRoot, os, 0, ordnerUeberschrift);
+			//DateiVerarbeiten(pfad, dirRoot, os, 0, ordnerUeberschrift);
 		}
 	}
 	
@@ -95,15 +100,21 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 	std::string ueberschrift = "\\" + EbenenName(ebene) + "{" + pfad.filename().generic_string() + "}\n";
 	os << ueberschrift;
 
+	std::vector<bild> bildVec;
 	while(it != fs::directory_iterator())
 	{
 		fs::path subPfad = it->path();
 		if(fs::is_regular_file(subPfad))
 		{
-			DateiVerarbeiten(subPfad, dirRoot, os, ebene + 1, ordnerUeberschrift);
+			DateiVerarbeiten(subPfad, dirRoot, os, ebene + 1, bildVec);
 			ordnerUeberschrift = "";
 		}
 		it++;
+	}
+	printf ("Gefundene Dateien:\n");
+	for (std::vector<bild>::iterator it = bildVec.begin();
+			it != bildVec.end(); it++) {
+		printf ("\tBild: %s\n\tTitel: %s\n\n", (*it).datei.c_str(), (*it).titel.c_str());
 	}
 
 	it = fs::directory_iterator(pfad);
@@ -119,7 +130,7 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 	return;
 }
 
-void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift)
+void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::vector<bild>& bildVec)
 {
 	std::string strPfad = pfad.filename().generic_string();
 	std::string ext = pfad.extension().generic_string();
@@ -180,16 +191,15 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 
 	fundStelle = strPfad.find('.', 0);
 	dateiName.erase(fundStelle, std::string::npos);
-	os << "\\begin{minipage}[c]{0.5\\textwidth}\n"
-		"\t\\centering\n"
-		"\t\\includegraphics[width=\\textwidth]{"
-		<< dirRoot << strPfad << "}\n";
+	bild tBild;
+	tBild.datei = dirRoot + strPfad;
 	if (dateiName[0] == '+') {
-		
-		os << "\t\\\\" << strPfad.substr(1, strPfad.find_last_of('.') - 1) << "\n";
+		tBild.titel = strPfad.substr(1, strPfad.find_last_of('.') - 1);
+	} else {
+		tBild.titel = "";
 	}
-	os << "\\end{minipage}\n\n";
-	
+	bildVec.push_back(tBild);
+
 	return;
 }
 
