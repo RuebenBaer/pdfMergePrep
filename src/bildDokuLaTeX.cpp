@@ -21,6 +21,7 @@ typedef struct {
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::vector<bild>& bildVec);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
+void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec);
 void GrossBuchstaben(std::string& str);
 std::string EbenenName(int ebene);
 void printLicense(void);
@@ -52,6 +53,7 @@ int main(int argc, char** argv)
 	}
 	
 	// Zuerst die Dateien verarbeiten
+	std::vector<bild> bildVec;
 	for(int datNr = 1; datNr < argc; datNr++)
 	{
 		std::cout<<"Argument "<<datNr<<": "<<argv[datNr]<<"\n";
@@ -63,9 +65,10 @@ int main(int argc, char** argv)
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
 		{
-			//DateiVerarbeiten(pfad, dirRoot, os, 0, ordnerUeberschrift);
+			DateiVerarbeiten(pfad, dirRoot, os, 0, bildVec);
 		}
 	}
+	BilderSchreiben (os, bildVec);
 	
 	// Dann die Verzeichniss verarbeiten
 	for(int datNr = 1; datNr < argc; datNr++)
@@ -111,11 +114,7 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 		}
 		it++;
 	}
-	printf ("Gefundene Dateien:\n");
-	for (std::vector<bild>::iterator it = bildVec.begin();
-			it != bildVec.end(); it++) {
-		printf ("\tBild: %s\n\tTitel: %s\n\n", (*it).datei.c_str(), (*it).titel.c_str());
-	}
+	BilderSchreiben (os, bildVec);
 
 	it = fs::directory_iterator(pfad);
 	while(it != fs::directory_iterator())
@@ -200,6 +199,37 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	}
 	bildVec.push_back(tBild);
 
+	return;
+}
+
+void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec)
+{
+	int bildCount = 0;
+	for (std::vector<bild>::iterator it = bildVec.begin();
+			it != bildVec.end(); it++) {
+		if (bildCount == 0) {
+			os << "\\begin{figure}[ht]\n"
+				"\t\\centering\n";
+		} else {
+			os << "\t\\qquad\n";
+		}
+		os << "\t\\parbox{0.4\\textwidth}"
+			"{\\includegraphics[width=\\linewidth]{" << (*it).datei << "}";
+		if (!(*it).titel.empty()) {
+			os << "\\\\" << (*it).titel;
+		}
+		os << "}\n";
+		if (bildCount == 1) {
+			os << "\\end{figure}\n\n";
+		}
+		bildCount ^= 1;
+	}
+	// Bei ungerader Anzahl Bilder, eine leere parbox anhängen
+	if (bildCount == 1) {
+		os << "\t\\qquad\n";
+		os << "\t\\parbox{0.4\\textwidth}{\\qquad}\n";
+		os << "\\end{figure}\n\n";
+	}
 	return;
 }
 

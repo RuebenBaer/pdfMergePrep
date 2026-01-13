@@ -1,4 +1,81 @@
+\documentclass[a4paper]{scrreport}
+\usepackage[T1]{fontenc}
+%\usepackage{fontspec}
+\usepackage[ngerman]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{pdfpages}
+\usepackage{bookmark}
+\usepackage{hyperref}
+\hypersetup{hidelinks, bookmarksdepth=5}
+
+
+%\setsansfont{Arial}
+\setlocalecaption{ngerman}{contents}{Verzeichnis der Anlagen}%Ã„ndert den Namen des Inhaltsverzeichnisses
+
+\begin{document}
+\renewcommand{\familydefault}{\sfdefault}
+
+\newgeometry{top=10mm,left=20mm,bottom=20mm,right=10mm}
 \chapter{Test}
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/+Unbenannt2.jpeg}\\Unbenannt2}
+	\qquad
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Unbenannt.jpeg}}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/benannt.jpeg}}
+	\qquad
+	\parbox{0.4\textwidth}{\qquad}
+\end{figure}
+
 \section{Ebene11}
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene11/+blaueBlume (Kopie).jpeg}\\blaueBlume (Kopie)}
+	\qquad
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene11/+blaueBlume.jpeg}\\blaueBlume}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene11/+blaueBlume (3+ Kopie).jpeg}\\blaueBlume (3+ Kopie)}
+	\qquad
+	\parbox{0.4\textwidth}{\qquad}
+\end{figure}
+
 \section{Ebene12}
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/blauereBlume.jpeg}}
+	\qquad
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/+blauereBlume2.jpeg}\\blauereBlume2}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/blauereBlume3.jpeg}}
+	\qquad
+	\parbox{0.4\textwidth}{\qquad}
+\end{figure}
+
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/blauereBlume3.jpeg}}
+	\qquad
+	\parbox{0.4\textwidth}{\qquad}
+\end{figure}
+
 \subsection{Ebene21}
+\begin{figure}[ht]
+	\centering
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/Ebene21/Unbenannt (Kopie).jpeg}}
+	\qquad
+	\parbox{0.4\textwidth}{\includegraphics[width=\linewidth]{Test/Ebene12/Ebene21/Unbenannt.jpeg}}
+\end{figure}
+
+\end{document}
