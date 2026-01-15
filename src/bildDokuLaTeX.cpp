@@ -21,7 +21,7 @@ typedef struct {
 
 void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::vector<bild>& bildVec);
 void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int ebene, std::string& ordnerUeberschrift);
-void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec);
+void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec, std::string& ordnerUeberschrift);
 void GrossBuchstaben(std::string& str);
 std::string EbenenName(int ebene);
 void printLicense(void);
@@ -52,6 +52,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
+	std::string ordnerUeberschrift("");
 	// Zuerst die Dateien verarbeiten
 	std::vector<bild> bildVec;
 	for(int datNr = 1; datNr < argc; datNr++)
@@ -60,7 +61,6 @@ int main(int argc, char** argv)
 		fs::path pfad(argv[datNr]);
 		if(!fs::exists(pfad))continue;
 
-		std::string ordnerUeberschrift("");
 		std::string dirRoot = "";
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_regular_file(pfad))
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 			DateiVerarbeiten(pfad, dirRoot, os, 0, bildVec);
 		}
 	}
-	BilderSchreiben (os, bildVec);
+	BilderSchreiben (os, bildVec, ordnerUeberschrift);
 	
 	// Dann die Verzeichniss verarbeiten
 	for(int datNr = 1; datNr < argc; datNr++)
@@ -77,7 +77,6 @@ int main(int argc, char** argv)
 		fs::path pfad(argv[datNr]);
 		if(!fs::exists(pfad))continue;
 
-		std::string ordnerUeberschrift("");
 		std::string dirRoot = "";
 		fs::path subPfad = pfad.parent_path();
 		if(fs::is_directory(pfad))
@@ -100,8 +99,7 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 	std::cout<<"Verzeichnis "<<dirRoot<<" gefunden\n";
 	fs::directory_iterator it(pfad);
 	
-	std::string ueberschrift = "\\" + EbenenName(ebene) + "{" + pfad.filename().generic_string() + "}\n";
-	os << ueberschrift;
+	ordnerUeberschrift += "\\" + EbenenName(ebene) + "{" + pfad.filename().generic_string() + "}\n";
 
 	std::vector<bild> bildVec;
 	while(it != fs::directory_iterator())
@@ -110,11 +108,10 @@ void VerzeichnisVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& o
 		if(fs::is_regular_file(subPfad))
 		{
 			DateiVerarbeiten(subPfad, dirRoot, os, ebene + 1, bildVec);
-			ordnerUeberschrift = "";
 		}
 		it++;
 	}
-	BilderSchreiben (os, bildVec);
+	BilderSchreiben (os, bildVec, ordnerUeberschrift);
 
 	it = fs::directory_iterator(pfad);
 	while(it != fs::directory_iterator())
@@ -202,14 +199,16 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	return;
 }
 
-void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec)
+void BilderSchreiben (std::ofstream& os, std::vector<bild>& bildVec, std::string& ordnerUeberschrift)
 {
 	int bildCount = 0;
 	for (std::vector<bild>::iterator it = bildVec.begin();
 			it != bildVec.end(); it++) {
 		if (bildCount == 0) {
-			os << "\\begin{figure}[ht]\n"
-				"\t\\centering\n";
+			os << "\\begin{figure}[ht]\n";
+			os << ordnerUeberschrift.c_str();
+			ordnerUeberschrift = ""; // Ueberschrift nur einmal einfuegen
+			os << "\t\\centering\n";
 		} else {
 			os << "\t\\qquad\n";
 		}
