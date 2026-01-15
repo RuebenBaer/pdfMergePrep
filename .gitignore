@@ -41,5 +41,5 @@ Beispiele/
 *.pdf
 *.toc
 *.aux
-*.syntex.gz
+*.synctex.gz
 *.un~
