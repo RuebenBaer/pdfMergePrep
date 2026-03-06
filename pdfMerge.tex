@@ -23,9 +23,25 @@
 \newgeometry{left=-20mm, top=-10mm}
 
 %zum Einfügen vom Fotodokumentation
-\newgeometry{left=20mm, top=10mm}
-\input{bildDoku} %Pfad zur Fotodokumentation
+%\newgeometry{left=20mm, top=10mm}
+%\input{bildDoku} %Pfad zur Fotodokumentation
+\includepdf[
+	pages=-,
+	rotateoversize,
+	fitpaper,
+	addtotoc={
+			1, chapter, 0, {test},
+	}
+]{22-test.pdf}
 
-\newgeometry{left=-20mm, top=-10mm}
+\includepdf[
+	pages=-,
+	rotateoversize,
+	fitpaper,
+	addtotoc={
+			1, chapter, 0, {bildDoku},
+	}
+]{901bildDoku.pdf}
+
 
 \end{document}

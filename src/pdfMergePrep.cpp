@@ -173,14 +173,26 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		}
 	}
 
-	std::string dateiName = strPfad;//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
+	std::string dateiName = strPfad;
+	//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
+
+	//Zahlen am Anfang des Daeitnames inkl. '-' entfernen
+	fundStelle = 0;
+	while (!(dateiName[0] < '0' || dateiName[0] > '9')) {
+		dateiName = dateiName.substr(1, std::string::npos);
+		std::cout << "Dateiname: " << dateiName << '\n';
+	};
+	if (dateiName[0] == '-') {
+		dateiName.erase(0, 1);
+	}
 	fundStelle = 0;
 	do
 	{
 		fundStelle = dateiName.find('_', fundStelle+1);
 		if(fundStelle == std::string::npos) break;
 		dateiName[fundStelle] = ' ';
-	}while(1);fundStelle = 0;
+	}while(1);
+	fundStelle = 0;
 	do
 	{
 		fundStelle = dateiName.find('+', fundStelle+1);
@@ -188,7 +200,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 		dateiName[fundStelle] = '.';
 	}while(1);
 
-	fundStelle = strPfad.find('.', 0);
+	fundStelle = dateiName.rfind('.');
 	dateiName.erase(fundStelle, std::string::npos);
 	os<<"\\includepdf[\n";
 		os<<"\tpages=-,\n";
