@@ -176,7 +176,7 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	std::string dateiName = strPfad;
 	//dateiname ist Eintrag in TOC => Unterstriche entfernen und Pluszeichen in Punkt zurücktauschen
 
-	//Zahlen am Anfang des Daeitnames inkl. '-' entfernen
+	//Zahlen am Anfang des Dateinames inkl. '-' entfernen
 	fundStelle = 0;
 	while (!(dateiName[0] < '0' || dateiName[0] > '9')) {
 		dateiName = dateiName.substr(1, std::string::npos);

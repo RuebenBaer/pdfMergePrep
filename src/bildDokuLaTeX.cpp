@@ -191,6 +191,14 @@ void DateiVerarbeiten(fs::path pfad, std::string dirRoot, std::ofstream& os, int
 	tBild.datei = dirRoot + strPfad;
 	if (dateiName[0] == '+') {
 		tBild.titel = strPfad.substr(1, strPfad.find_last_of('.') - 1);
+		fundStelle = 0;
+		while (!(tBild.titel[0] < '0' || tBild.titel[0] > '9')) {
+			tBild.titel = tBild.titel.substr(1, std::string::npos);
+			std::cout << "Dateiname: " << tBild.titel << '\n';
+		};
+		if (tBild.titel[0] == '-') {
+			tBild.titel.erase(0, 1);
+		}
 	} else {
 		tBild.titel = "";
 	}
